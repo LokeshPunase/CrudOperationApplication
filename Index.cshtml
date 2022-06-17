@@ -1,0 +1,161 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <table class="table table-bordered table-hover">
+            <tr>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Designation</th>
+                <th>Created Date</th>
+                <th>Last Updated</th>
+                <th>Is Active</th>
+            </tr>
+            <tbody class="tbody"></tbody>
+        </table>
+    </div>
+    <div class="col-md-12">
+        <div class="form-group">
+            <lable>Name</lable>
+            <input type="text" id="txtName" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Phone No</lable>
+            <input type="text" id="txtPhoneNo" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Email</lable>
+            <input type="text" id="txtEmail" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Designation</lable>
+            <input type="text" id="txtDesignation" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Created Date</lable>
+            <input type="text" id="txtCreatedDate" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Last Updated</lable>
+            <input type="text" id="txtLastUpdated" class="form-control empty" />
+        </div>
+        <div class="form-group">
+            <lable>Is Active</lable>
+            <input type="text" id="txtIsActive" class="form-control empty" />
+        </div>
+        <div class="form-group">
+
+            <input type="hidden" id="hdnId" class="form-control empty" />
+        </div>
+
+        <div class="form-group">
+            <button onclick="addEmployee()" id="btnAdd" class="btn btn-success">Add Employee</button>
+            <button onclick="editEmployee()" id="btnEdit" class="btn btn-success">Edit Employee</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    GetAllData();
+    function GetAllData() {
+        $('#btnEdit').hide();
+        $('#btnAdd').show();
+        $.ajax({
+            url: 'http://localhost:63350/api/crudapi',
+            type: 'GET',
+            success: function (res) {
+                $('.tbody').html('');
+                var html = "";
+                $.each(res, function (index, item) {
+                    html += '<tr>';
+                    html += '<td>' + item.empname + '</td>';
+                    html += '<td>' + item.empphoneno + '</td>';
+                    html += '<td>' + item.email + '</td>';
+                    html += '<td>' + item.empdesignation + '</td>';
+                    html += '<td>' + item.createDate + '</td>';
+                    html += '<td>' + item.lastUpdated + '</td>';
+                    html += '<td>' + item.isActive + '</td>';
+                    html += '<td><a href="#" onclick=editEmployee(' + item.Id + ')>Edit</a><a href="#" onclick=deleteEmployee(' + item.Id + ')>Delete</a></td>';
+                    html += '</tr>';
+                });
+                $('.tbody').append(html);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+    function editEmployee(id) {
+        $.ajax({
+            url: 'http://localhost:63350/api/crudapi',
+            type: 'GET',
+            data: { 'id': id },
+            success: function (res) {
+                if (res != null) {
+                    $('#txtName').val(res.empname);
+                    $('#txtPhoneNo').val(res.empphoneno);
+                    $('#txtEmail').val(res.email);
+                    $('#txtDesignation').val(res.empdesignation);
+                    $('#txtCreatedDate').val(res.createDate);
+                    $('#txtLastUpdated').val(res.lastUpdated);
+                    $('#txtIsActive').val(res.isActive);
+                    $('#hdnId').val(res.Id);
+                }
+                $('#btnEdit').show();
+                $('#btnAdd').hide();
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+    function deleteEmployee(id) {
+        $('#btnEdit').hide();
+        $('#btnAdd').show();
+        if (confirm("Are you sure, you want to delete the data?")) {
+            $.ajax({
+                url: 'http://localhost:63350/api/crudapi/' + id,
+                type: 'DELETE',
+                success: function (res) {
+                    if (res != null) {
+                        GetAllData();
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+    }
+    function addEmployee() {
+        var employee = {
+            Name: $('#txtName').val(),
+            PhoneNo: $('#txtPhoneNo').val(),
+            Email: $('#txtEmail').val(),
+            Designation: $('#txtDesignation').val(),
+            CreatedDate: $('#txtCreatedDate').val(),
+            LastUpdated: $('#txtLastUpdated').val(),
+            IsActive: $('#txtIsActive').val(),
+        };
+        $.ajax({
+            url: 'http://localhost:63350/api/crudapi',
+            type: 'POST',
+            data: employee,
+            success: function (res) {
+                if (res != null) {
+                    GetAllData();
+                }
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+    $("#txtName").click(function () {
+        var str = $("#txtName").val();
+        $("#result").text(isPalindrome(str));
+
+    });
+    function isPalindrome(str) {
+        return str.split('').reverse().join('') == str;
+    }
+</script>
